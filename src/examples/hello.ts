@@ -6,8 +6,8 @@
  */
 import { Scene } from '../scene/scene.ts';
 import { Circle } from '../shapes/circle.ts';
-import { FadeIn } from '../animation/fade_in.ts';
-import { MoveTo } from '../animation/move_to.ts';
+// import { FadeIn } from '../animation/fade_in.ts';
+// import { MoveTo } from '../animation/move_to.ts';
 import type { SceneConfig } from '../core/types.ts';
 
 // File-level configuration (Level 2)
@@ -32,7 +32,9 @@ export class HelloWorld extends Scene {
     this.add(circle);
 
     // Fade in, then move
-    this.play(new FadeIn(circle).setDuration(1.0));
-    this.play(new MoveTo(circle, [150, 90]).setDuration(2.0).setEasing('easeInOut'));
+    // await this.play(new FadeIn(circle).setDuration(1.0));
+    //    await this.play(new MoveTo(circle, [150, 90]).setDuration(2.0).setEasing('easeInOut'));
+    await this.play(circle.fadeIn(1));   
+    await this.play(circle.moveTo([150, 90]).setEasing('easeInOut').setDuration(2.0));
   }
 }

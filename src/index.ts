@@ -17,5 +17,6 @@ export { resolveConfig, DEFAULT_ENGINE_CONFIG } from './core/config.ts';
 export { CanvasRenderer } from './renderer/canvas_renderer.ts';
 export { MoveTo } from './animation/move_to.ts';
 export { FadeIn } from './animation/fade_in.ts';
+export { Sequence, Parallel, SequenceAnimation, ParallelAnimation } from './animation/combinators.ts';
 export { Circle } from './shapes/circle.ts';
 export { linear, easeIn, easeOut, easeInOut, elastic, bounce, spring } from './core/easing.ts';
