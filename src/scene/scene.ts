@@ -32,6 +32,9 @@ export abstract class Scene {
   /** Objects in draw order. */
   protected readonly objects: Mobject[] = [];
 
+  /** Running frame counter across all play() calls (for PNG naming). */
+  private frameCounter: number = 0;
+
   constructor(fileConfig: SceneConfig | undefined, output: RenderOutputOptions) {
     // Resolve hierarchical config
     const sceneCtor = this.constructor as typeof Scene;
@@ -46,6 +49,13 @@ export abstract class Scene {
   /** Hook for user construction (create objects, etc.). */
   public async construct(): Promise<void> {
     // Users override
+  }
+
+  /**
+   * Expose effective configuration for this scene.
+   */
+  public getConfig(): EngineConfig {
+    return this.config;
   }
 
   /** Add objects to the scene in draw order. */
@@ -102,8 +112,9 @@ export abstract class Scene {
       this.draw();
 
       if (this.output.savePNGs) {
-        const file = join(this.output.outDir, `${this.name}_${String(frame).padStart(5, '0')}.png`);
+        const file = join(this.output.outDir, `${this.name}_${String(this.frameCounter).padStart(5, '0')}.png`);
         await this.renderer.writePNG(file);
+        this.frameCounter++;
       } else {
         // Not writing intermediate frames, just end frame
         this.renderer.endFrame();
