@@ -34,6 +34,14 @@ export class Text extends Mobject {
     return this;
   }
 
+  /**
+   * Fluent alias for setText.
+   * @param text New content
+   */
+  public text(text: string): this {
+    return this.setText(text);
+  }
+
   /** Set font family (chainable). Alias: .setFont() */
   public setFontFamily(family?: string): this {
     this._fontFamily = family;

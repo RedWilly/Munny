@@ -1,12 +1,16 @@
 {
-  "name": "ts-manim",
+  "name": "munny",
   "module": "src/index.ts",
   "type": "module",
+  "bin": {
+    "munny": "src/cli/cli.ts"
+  },
   "scripts": {
-    "test": "bun run src/test/test-runner.ts",
+    "test": "bun test",
     "build": "bun build src/index.ts --outdir dist --target bun",
     "typecheck": "tsc --noemit",
-    "cli": "bun run src/cli/cli.ts"
+    "cli": "bun run src/cli/cli.ts",
+    "munny": "bun run src/cli/cli.ts"
   },
   "devDependencies": {
     "@types/bun": "latest",

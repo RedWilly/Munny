@@ -1,3 +1,5 @@
+#!/usr/bin/env bun
+
 /**
  * Bun CLI for the TypeScript Manim-like engine.
  */
@@ -65,7 +67,7 @@ async function run(sceneFile: string, sceneName: string, options: CliOptions): P
 export async function main(argv: string[]): Promise<void> {
   const program = new Command();
   program
-    .name('manim-ts')
+    .name('munny')
     .description('Server-side TypeScript Manim-like engine (Bun)')
     .argument('<sceneFile>', 'Path to scene file')
     .argument('<sceneName>', 'Scene class to render')

@@ -33,7 +33,7 @@ export class HelloWorld extends Scene {
 
     const title = new Text('Hello Munny', { font: 'Arial', size: 32 })
     /*or can use .setFont('Arial') and .setFontSize(32)*/
-      .setColor('#ffffff')
+      .setColor('#00ff00')
       .setOpacity(0)
       .setPosition(0, 0);
 
@@ -43,6 +43,6 @@ export class HelloWorld extends Scene {
     // await this.play(new FadeIn(circle).setDuration(1.0));
     //    await this.play(new MoveTo(circle, [150, 90]).setDuration(2.0).setEasing('easeInOut'));
     await this.play(circle.fadeIn(3), title.fadeIn(1));
-    await this.play(circle.moveTo([150, 90]).setEasing('bounce').setDuration(2.0));
+    await this.play(circle.moveTo([150, 90]).setEasing('easeInOut').setDuration(2.0));
   }
 }
