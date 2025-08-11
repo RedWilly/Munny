@@ -1,0 +1,29 @@
+{
+  "name": "ts-manim",
+  "module": "src/index.ts",
+  "type": "module",
+  "scripts": {
+    "test": "bun run src/test/test-runner.ts",
+    "build": "bun build src/index.ts --outdir dist --target bun",
+    "typecheck": "tsc --noemit",
+    "cli": "bun run src/cli/cli.ts"
+  },
+  "devDependencies": {
+    "@types/bun": "latest",
+    "@types/fontkit": "^2.0.8",
+    "@types/node": "^20.14.10"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  },
+  "dependencies": {
+    "@redwilly/fontscanner": "^1.0.1",
+    "canvas": "^3.1.2",
+    "commander": "^14.0.0",
+    "fontkit": "^2.0.4",
+    "path2d": "^0.3.1",
+    "svg-path-parser": "^1.1.0",
+    "texsvg": "^2.3.1"
+  },
+  "private": true
+}
