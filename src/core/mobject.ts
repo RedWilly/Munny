@@ -7,8 +7,8 @@
 import type { ColorString, ReadonlyVec2, Vec2 } from './types.ts';
 import { vec2 } from './types.ts';
 import type { SKRSContext2D } from '@napi-rs/canvas';
-import { FadeIn } from '../animation/fade_in.ts';
-import { MoveTo } from '../animation/move_to.ts';
+import { FadeIn } from '../animation/fade.ts';
+import { MoveTo } from '../animation/move.ts';
 
 /**
  * Abstract base class for all renderable objects.

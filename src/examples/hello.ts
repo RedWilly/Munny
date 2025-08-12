@@ -40,8 +40,6 @@ export class HelloWorld extends Scene {
     this.add(circle, title);
 
     // Fade in, then move
-    // await this.play(new FadeIn(circle).setDuration(1.0));
-    //    await this.play(new MoveTo(circle, [150, 90]).setDuration(2.0).setEasing('easeInOut'));
     await this.play(circle.fadeIn(3), title.fadeIn(1));
     await this.play(circle.moveTo([150, 90]).setEasing('easeInOut').setDuration(2.0));
   }

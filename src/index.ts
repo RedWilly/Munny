@@ -15,8 +15,8 @@ export type {
 } from './core/types.ts';
 export { resolveConfig, DEFAULT_ENGINE_CONFIG } from './core/config.ts';
 export { CanvasRenderer } from './renderer/canvas_renderer.ts';
-export { MoveTo } from './animation/move_to.ts';
-export { FadeIn } from './animation/fade_in.ts';
+export { MoveTo } from './animation/move.ts';
+export { FadeIn } from './animation/fade.ts';
 export { Sequence, Parallel, SequenceAnimation, ParallelAnimation } from './animation/combinators.ts';
 export { Circle } from './shapes/circle.ts';
 export { Text } from './text/text.ts';

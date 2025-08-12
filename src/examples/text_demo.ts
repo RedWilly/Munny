@@ -41,12 +41,12 @@ export class TextDemo extends Scene {
 
     const dot = new Circle(6)
       .setColor('#00ff88')
-      .setPosition(-120, 30)
+      .setPosition(-150, 35)
       .setOpacity(0);
 
     this.add(headline, subtitle, footnote, dot);
 
-    this.play(headline.fadeIn(1), subtitle.fadeIn(1), footnote.fadeIn(1), dot.fadeIn(1));
-    this.play(dot.moveTo([150, 90]).setEasing('easeInOut').setDuration(2.0));
+    await this.play(headline.fadeIn(1), subtitle.fadeIn(1), footnote.fadeIn(1), dot.fadeIn(1));
+    await this.play(dot.moveTo([113, 90]).setEasing('easeInOut').setDuration(2.0));
 }
 }

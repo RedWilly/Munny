@@ -1,8 +1,9 @@
+import { Animation } from './animation.ts';
+import type { Mobject } from '../core/mobject.ts';
+
 /**
  * FadeIn animation - interpolates opacity from initial to 1.
  */
-import { Animation } from './animation.ts';
-import type { Mobject } from '../core/mobject.ts';
 
 export class FadeIn extends Animation {
   private fromOpacity = 0;
@@ -23,3 +24,10 @@ export class FadeIn extends Animation {
     this.target.setOpacity(next);
   }
 }
+
+
+/**
+ * FadeOut animation - interpolates opacity from 1 to initial.
+ */
+
+//todo
