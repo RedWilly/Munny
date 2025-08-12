@@ -5,7 +5,7 @@ import { Text } from "../src/text/text.ts";
 
 test("Text fluent API", () => {
   const t = new Text("hello")
-    .text("world")
+    .setText("world")
     .setFont("Arial")
     .setFontSize(42)
     .setColor("#abcdef")
