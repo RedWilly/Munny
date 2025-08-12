@@ -2,7 +2,7 @@
  * Animation combinators for sequencing and parallel execution.
  */
 import { Animation } from './animation.ts';
-import { Mobject as BaseMobject } from '../core/mobject.ts';
+import { Mobject as BaseMobject } from '../../core/mobject.ts';
 import type { SKRSContext2D } from '@napi-rs/canvas';
 
 /**

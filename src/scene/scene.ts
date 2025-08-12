@@ -6,7 +6,7 @@ import { clamp } from '../core/math.ts';
 import type { EngineConfig, RenderOutputOptions, SceneConfig } from '../core/types.ts';
 import { resolveConfig } from '../core/config.ts';
 import type { Mobject } from '../core/mobject.ts';
-import type { Animation } from '../animation/animation.ts';
+import type { Animation } from '../animation/base/animation.ts';
 import { join } from 'path';
 import { promises as fs } from 'fs';
 

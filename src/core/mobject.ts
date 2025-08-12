@@ -7,8 +7,12 @@
 import type { ColorString, ReadonlyVec2, Vec2 } from './types.ts';
 import { vec2 } from './types.ts';
 import type { SKRSContext2D } from '@napi-rs/canvas';
-import { FadeIn } from '../animation/fade.ts';
-import { MoveTo } from '../animation/move.ts';
+import { FadeIn, FadeOut } from '../animation/transforms/fade.ts';
+import { MoveTo, MoveBy } from '../animation/transforms/move.ts';
+import { RotateTo, RotateBy } from '../animation/transforms/rotate.ts';
+import { ScaleTo, ScaleBy } from '../animation/transforms/scale.ts';
+import { OpacityTo } from '../animation/transforms/opacity.ts';
+import { FillColorTo, StrokeColorTo, StrokeWidthTo } from '../animation/transforms/style.ts';
 
 /**
  * Abstract base class for all renderable objects.
@@ -157,6 +161,13 @@ export abstract class Mobject {
     return anim;
   }
 
+  /** Create a FadeOut animation for this object. */
+  public fadeOut(duration?: number): FadeOut {
+    const anim = new FadeOut(this);
+    if (duration !== undefined) anim.setDuration(duration);
+    return anim;
+  }
+
   /**
    * Create a MoveTo animation for this object.
    * @param to Destination position (absolute)
@@ -164,6 +175,73 @@ export abstract class Mobject {
    */
   public moveTo(to: ReadonlyVec2, duration?: number): MoveTo {
     const anim = new MoveTo(this, to);
+    if (duration !== undefined) anim.setDuration(duration);
+    return anim;
+  }
+
+  /**
+   * Create a MoveBy animation for this object.
+   * @param delta Translation delta [dx, dy]
+   * @param duration Optional duration in seconds (defaults to 1 if omitted)
+   */
+  public moveBy(delta: ReadonlyVec2, duration?: number): MoveBy {
+    const anim = new MoveBy(this, delta);
+    if (duration !== undefined) anim.setDuration(duration);
+    return anim;
+  }
+
+  /** Create a RotateTo animation (absolute angle in radians, CCW). */
+  public rotateTo(angleRad: number, duration?: number): RotateTo {
+    const anim = new RotateTo(this, angleRad);
+    if (duration !== undefined) anim.setDuration(duration);
+    return anim;
+  }
+
+  /** Create a RotateBy animation (relative delta angle in radians). */
+  public rotateBy(deltaRad: number, duration?: number): RotateBy {
+    const anim = new RotateBy(this, deltaRad);
+    if (duration !== undefined) anim.setDuration(duration);
+    return anim;
+  }
+
+  /** Create a ScaleTo animation to absolute scale [sx, sy]. */
+  public scaleTo(scale: ReadonlyVec2, duration?: number): ScaleTo {
+    const anim = new ScaleTo(this, scale);
+    if (duration !== undefined) anim.setDuration(duration);
+    return anim;
+  }
+
+  /** Create a ScaleBy animation multiplying current scale by [dx, dy]. */
+  public scaleBy(factor: ReadonlyVec2, duration?: number): ScaleBy {
+    const anim = new ScaleBy(this, factor);
+    if (duration !== undefined) anim.setDuration(duration);
+    return anim;
+  }
+
+  /** Create an OpacityTo animation to target opacity in [0,1]. */
+  public opacityTo(value: number, duration?: number): OpacityTo {
+    const anim = new OpacityTo(this, value);
+    if (duration !== undefined) anim.setDuration(duration);
+    return anim;
+  }
+
+  /** Animate fill color to a target color string. */
+  public fillColorTo(color: ColorString, duration?: number): FillColorTo {
+    const anim = new FillColorTo(this, color);
+    if (duration !== undefined) anim.setDuration(duration);
+    return anim;
+  }
+
+  /** Animate stroke color to a target color string. */
+  public strokeColorTo(color: ColorString, duration?: number): StrokeColorTo {
+    const anim = new StrokeColorTo(this, color);
+    if (duration !== undefined) anim.setDuration(duration);
+    return anim;
+  }
+
+  /** Animate stroke width to a target pixel width. */
+  public strokeWidthTo(width: number, duration?: number): StrokeWidthTo {
+    const anim = new StrokeWidthTo(this, width);
     if (duration !== undefined) anim.setDuration(duration);
     return anim;
   }

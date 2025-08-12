@@ -1,7 +1,7 @@
 /**
  * Easing functions used by animations.
  */
-import type { EasingFn, EasingName } from './types.ts';
+import type { EasingFn, EasingName } from '../../core/types.ts';
 
 /** Linear easing. */
 export const linear: EasingFn = (t: number): number => t;

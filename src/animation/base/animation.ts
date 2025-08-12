@@ -1,9 +1,9 @@
 /**
  * Animation base class and helpers.
  */
-import type { EasingName } from '../core/types.ts';
-import { getEasing } from '../core/easing.ts';
-import type { Mobject } from '../core/mobject.ts';
+import type { EasingName } from '../../core/types.ts';
+import { getEasing } from './easing.ts';
+import type { Mobject } from '../../core/mobject.ts';
 
 /**
  * Base animation operating on a single Mobject.
