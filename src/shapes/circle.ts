@@ -2,7 +2,7 @@
  * Circle shape.
  */
 import { Mobject } from '../core/mobject.ts';
-import type { CanvasRenderingContext2D } from 'canvas';
+import type { SKRSContext2D } from '@napi-rs/canvas';
 
 /** Circle defined by radius. */
 export class Circle extends Mobject {
@@ -24,7 +24,7 @@ export class Circle extends Mobject {
     return this;
   }
 
-  protected createPath(ctx: CanvasRenderingContext2D): void {
+  protected createPath(ctx: SKRSContext2D): void {
     const r = this._radius;
     ctx.arc(0, 0, r, 0, Math.PI * 2);
   }

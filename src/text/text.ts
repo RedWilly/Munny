@@ -5,7 +5,7 @@
  * - Characters are individually addressable and animatable.
  * - Supports runtime numeric indexing via Proxy: `text[0]`.
  */
-import { createCanvas, type CanvasRenderingContext2D } from 'canvas';
+import { createCanvas, type SKRSContext2D } from '@napi-rs/canvas';
 import { VGroup } from '../core/vgroup.ts';
 import { TextChar } from './text_char.ts';
 import { FontManager } from '../font/font_manager.ts';
@@ -123,7 +123,7 @@ export class Text extends VGroup<TextChar> {
   }
 
   /** Draw: ensure layout first, then use VGroup to render children. */
-  public override draw(ctx: CanvasRenderingContext2D): void {
+  public override draw(ctx: SKRSContext2D): void {
     if (!this.visible) return;
     this.ensureLayout();
     // Propagate current parent style to characters so updates reflect immediately
@@ -200,12 +200,12 @@ function quoteIfNeeded(family: string): string {
 }
 
 // Cached measurement context for text metrics
-let _measureCtx: CanvasRenderingContext2D | null = null;
-function getMeasureContext(): CanvasRenderingContext2D {
+let _measureCtx: SKRSContext2D | null = null;
+function getMeasureContext(): SKRSContext2D {
   if (_measureCtx) return _measureCtx;
   const c = createCanvas(8, 8);
   const ctx = c.getContext('2d');
   if (!ctx) throw new Error('Failed to acquire 2D context for measurement');
-  _measureCtx = ctx as CanvasRenderingContext2D;
+  _measureCtx = ctx as SKRSContext2D;
   return _measureCtx;
 }

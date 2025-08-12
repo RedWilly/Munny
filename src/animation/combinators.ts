@@ -3,14 +3,14 @@
  */
 import { Animation } from './animation.ts';
 import { Mobject as BaseMobject } from '../core/mobject.ts';
-import type { CanvasRenderingContext2D } from 'canvas';
+import type { SKRSContext2D } from '@napi-rs/canvas';
 
 /**
  * Internal no-op mobject used as target for composite animations.
  * It is never added to a scene; it only satisfies the Animation base class.
  */
 class NullMobject extends BaseMobject {
-  protected createPath(_ctx: CanvasRenderingContext2D): void {
+  protected createPath(_ctx: SKRSContext2D): void {
     // no-op
   }
 }

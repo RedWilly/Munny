@@ -6,7 +6,7 @@
  */
 import type { ColorString, ReadonlyVec2, Vec2 } from './types.ts';
 import { vec2 } from './types.ts';
-import type { CanvasRenderingContext2D } from 'canvas';
+import type { SKRSContext2D } from '@napi-rs/canvas';
 import { FadeIn } from '../animation/fade_in.ts';
 import { MoveTo } from '../animation/move_to.ts';
 
@@ -172,12 +172,12 @@ export abstract class Mobject {
    * Create a path for this object at local origin. Subclasses must implement.
    * The base draw method will handle fill/stroke after this path is defined.
    */
-  protected abstract createPath(ctx: CanvasRenderingContext2D): void;
+  protected abstract createPath(ctx: SKRSContext2D): void;
 
   /**
    * Draw with current transforms and style.
    */
-  public draw(ctx: CanvasRenderingContext2D): void {
+  public draw(ctx: SKRSContext2D): void {
     if (!this._visible) return;
 
     ctx.save();

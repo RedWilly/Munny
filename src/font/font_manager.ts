@@ -1,4 +1,4 @@
-import { registerFont } from 'canvas';
+import { GlobalFonts } from '@napi-rs/canvas';
 import { basename } from 'path';
 import FontScanner from '@redwilly/fontscanner';
 
@@ -62,7 +62,7 @@ export class FontManager {
   
     if (!this.registeredFamilies.has(resolved.family)) {
       try {
-        registerFont(resolved.path, { family: resolved.family });
+        GlobalFonts.registerFromPath(resolved.path, resolved.family);
       } catch {
         // Ignore registration errors
       }

@@ -4,7 +4,7 @@
  * Draws one character at its local origin (baseline y=0) with center alignment,
  * and applies a local Y-scale flip to cancel the global scene Y-up flip.
  */
-import type { CanvasRenderingContext2D } from 'canvas';
+import type { SKRSContext2D } from '@napi-rs/canvas';
 import { Mobject } from '../core/mobject.ts';
 import { FontManager } from '../font/font_manager.ts';
 
@@ -45,12 +45,12 @@ export class TextChar extends Mobject {
     return this;
   }
 
-  protected createPath(_ctx: CanvasRenderingContext2D): void {
+  protected createPath(_ctx: SKRSContext2D): void {
     // No prebuilt path; draws directly
   }
 
   /** Draw a single character centered horizontally at baseline y=0. */
-  public override draw(ctx: CanvasRenderingContext2D): void {
+  public override draw(ctx: SKRSContext2D): void {
     if (!this.visible) return;
 
     // Ensure font is registered, prefer already-resolved

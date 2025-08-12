@@ -20,8 +20,8 @@
     "typescript": "^5"
   },
   "dependencies": {
+    "@napi-rs/canvas": "^0.1.77",
     "@redwilly/fontscanner": "^1.0.1",
-    "canvas": "^3.1.2",
     "commander": "^14.0.0",
     "fontkit": "^2.0.4",
     "svg-path-parser": "^1.1.0",

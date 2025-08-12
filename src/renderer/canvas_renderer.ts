@@ -1,7 +1,7 @@
 /**
- * CanvasRenderer - server-side renderer using node-canvas.
+ * CanvasRenderer - server-side renderer using @napi-rs/canvas.
  */
-import { createCanvas, type Canvas, type CanvasRenderingContext2D } from 'canvas';
+import { createCanvas, type Canvas, type SKRSContext2D } from '@napi-rs/canvas';
 import { promises as fs } from 'fs';
 import { dirname } from 'path';
 import type { EngineConfig } from '../core/types.ts';
@@ -11,21 +11,21 @@ import type { EngineConfig } from '../core/types.ts';
  */
 export class CanvasRenderer {
   private readonly canvas: Canvas;
-  private readonly ctx: CanvasRenderingContext2D;
+  private readonly ctx: SKRSContext2D;
   private readonly width: number;
   private readonly height: number;
 
   constructor(private readonly config: EngineConfig) {
     this.width = config.width;
     this.height = config.height;
-    this.canvas = createCanvas(this.width, this.height);
+    this.canvas = createCanvas(this.width, this.height) as unknown as Canvas;
     const ctx = this.canvas.getContext('2d');
     if (!ctx) throw new Error('Failed to acquire 2D context');
-    this.ctx = ctx as CanvasRenderingContext2D;
+    this.ctx = ctx as SKRSContext2D;
   }
 
   /** 2D context with scene coordinate system (origin center, Y-up). */
-  public getContext(): CanvasRenderingContext2D {
+  public getContext(): SKRSContext2D {
     const ctx = this.ctx;
     // Reset transform, clear and set coordinate system per frame by caller.
     return ctx;
@@ -51,12 +51,13 @@ export class CanvasRenderer {
     ctx.scale(1, -1);
   }
 
-  /** Finish frame and return PNG buffer. */
-  public endFrameToPNG(): Buffer {
+  /** Finish frame and return PNG bytes. */
+  public async endFrameToPNG(): Promise<Uint8Array> {
     // Restore transform stack corresponding to beginFrame
     this.ctx.restore();
-    // toBuffer reads current canvas pixels
-    return this.canvas.toBuffer('image/png');
+    // encode reads current canvas pixels
+    const bytes = await this.canvas.encode('png');
+    return bytes;
   }
 
   /** Finish frame without producing a buffer. */
@@ -66,7 +67,7 @@ export class CanvasRenderer {
 
   /** Write PNG to file asynchronously. */
   public async writePNG(filePath: string): Promise<void> {
-    const buf = this.endFrameToPNG();
+    const buf = await this.endFrameToPNG();
     await fs.mkdir(dirname(filePath), { recursive: true }).catch(() => {});
     await fs.writeFile(filePath, buf);
   }

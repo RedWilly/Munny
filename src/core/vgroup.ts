@@ -4,7 +4,7 @@
  * Applies group-level transforms and opacity to children, then draws each child.
  * Styling (fill/stroke) is not applied at group level; children own their style.
  */
-import type { CanvasRenderingContext2D } from 'canvas';
+import type { SKRSContext2D } from '@napi-rs/canvas';
 import { Mobject } from './mobject.ts';
 
 /**
@@ -60,12 +60,12 @@ export class VGroup<T extends Mobject = Mobject> extends Mobject {
   }
 
   /** No path for a group. */
-  protected createPath(_ctx: CanvasRenderingContext2D): void {}
+  protected createPath(_ctx: SKRSContext2D): void {}
 
   /**
    * Draw group: apply transforms and opacity, then draw each child.
    */
-  public override draw(ctx: CanvasRenderingContext2D): void {
+  public override draw(ctx: SKRSContext2D): void {
     if (!this.visible) return;
 
     ctx.save();
