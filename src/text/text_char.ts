@@ -6,13 +6,12 @@
  */
 import type { SKRSContext2D } from '@napi-rs/canvas';
 import { Mobject } from '../core/mobject.ts';
-import { ensureFontRegistered, defaultRobotoPath, deriveFamilyFromPath } from '../font/font_utils.ts';
+import { parseAndRegisterFont } from '../font/font_utils.ts';
 
 export class TextChar extends Mobject {
   private _char: string;
-  private _fontFamily?: string;
+  private _font?: string;
   private _resolvedFamily?: string;
-  private _fontPath?: string;
   private _fontSize: number = 48;
 
   constructor(ch: string, name: string = 'TextChar') {
@@ -27,9 +26,9 @@ export class TextChar extends Mobject {
     return this;
   }
 
-  /** Configure font family to resolve. */
-  public setFontFamily(family?: string): this {
-    this._fontFamily = family;
+  /** Configure font specification to resolve. */
+  public setFont(font?: string): this {
+    this._font = font;
     this._resolvedFamily = undefined;
     return this;
   }
@@ -40,14 +39,11 @@ export class TextChar extends Mobject {
     return this;
   }
 
-  /** Set explicit font file path for this character. */
-  public setFontPath(path: string): this {
-    this._fontPath = path;
-    this._resolvedFamily = undefined;
-    return this;
-  }
   /** Fluent alias */
-  public fontPath(path: string): this { return this.setFontPath(path); }
+  public font(font?: string): this { return this.setFont(font); }
+
+  /** Fluent alias */
+  public fontSize(px: number): this { return this.setFontSize(px); }
 
   /** For internal use when parent already resolved the family. */
   public setResolvedFamily(family: string): this {
@@ -65,11 +61,10 @@ export class TextChar extends Mobject {
 
     // Ensure font is registered, prefer already-resolved
     if (!this._resolvedFamily) {
-      // Prefer explicit font path; otherwise use bundled Roboto.
-      const path = this._fontPath ?? defaultRobotoPath();
-      const family = this._fontPath ? (this._fontFamily ?? deriveFamilyFromPath(path)) : deriveFamilyFromPath(path);
-      ensureFontRegistered(path, family);
-      this._resolvedFamily = family;
+      if (!this._font) {
+        throw new Error('No font specified for TextChar. Font must be set via parent Text or directly.');
+      }
+      this._resolvedFamily = parseAndRegisterFont(this._font);
     }
 
     ctx.save();
@@ -88,7 +83,7 @@ export class TextChar extends Mobject {
       // Configure text styles
       ctx.textAlign = 'center';
       ctx.textBaseline = 'alphabetic';
-      ctx.font = `${this._fontSize}px ${quoteIfNeeded(this._resolvedFamily)}`;
+      ctx.font = `${this._fontSize}px ${quoteIfNeeded(this._resolvedFamily!)}`;
 
       if (this.fillColor) {
         ctx.fillStyle = this.fillColor as string;

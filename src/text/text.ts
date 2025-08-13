@@ -8,32 +8,27 @@
 import { createCanvas, type SKRSContext2D } from '@napi-rs/canvas';
 import { VGroup } from '../core/vgroup.ts';
 import { TextChar } from './text_char.ts';
-import { ensureFontRegistered, defaultRobotoPath, deriveFamilyFromPath } from '../font/font_utils.ts';
+import { parseAndRegisterFont } from '../font/font_utils.ts';
 
 export class Text extends VGroup<TextChar> {
   [index: number]: TextChar; 
   private _text: string;
-  private _fontFamily?: string; 
+  private _font?: string; 
   private _resolvedFamily?: string; 
-  private _fontPath?: string; 
   private _fontSize: number = 48;
   private _needsLayout: boolean = true;
   /**
-   * Create text. Defaults: fontSize=48. If `fontPath` is provided, it will be registered
-   * via GlobalFonts and used; otherwise, the bundled ROBOTO-REGULAR.ttf is registered
-   * and used by default. You can still pass a `fontFamily` (or `font`) to set the family name.
+   * Create text. Defaults: fontSize=48. 
    * Use chaining for style (fill/stroke) from Mobject, and .font() / .fontSize().
    */
   constructor(
     text: string,
-    opts?: { fontPath?: string; font?: string; fontFamily?: string; fontSize?: number },
+    opts?: { font?: string; fontSize?: number },
     name: string = 'Text'
   ) {
     super(name);
     this._text = text;
-    const fam = opts?.font ?? opts?.fontFamily;
-    if (fam) this._fontFamily = fam;
-    if (opts?.fontPath) this._fontPath = opts.fontPath;
+    if (opts?.font) this._font = opts.font;
     const sz = opts?.fontSize;
     if (sz !== undefined) this._fontSize = sz > 0 ? sz : 1;
     // Default fill to white for visibility
@@ -65,9 +60,9 @@ export class Text extends VGroup<TextChar> {
   public text(text: string): this { return this.setText(text); }
 
 
-  /** Set font family (chainable). Alias: .setFont() */
-  public setFontFamily(family?: string): this {
-    this._fontFamily = family;
+  /** Set font specification (chainable). Supports family names, file paths, or path#family format. */
+  public setFont(font?: string): this {
+    this._font = font;
     this._resolvedFamily = undefined; // re-resolve on next layout
     this._needsLayout = true;
     return this;
@@ -83,25 +78,12 @@ export class Text extends VGroup<TextChar> {
     return this;
   }
 
-  /** Fluent alias for setFontFamily. */
-  public setFont(family?: string): this { return this.setFontFamily(family); }
-  /** Fluent alias: .font() */
-  public font(family?: string): this { return this.setFontFamily(family); }
   /** Fluent alias: .fontSize() */
   public fontSize(px: number): this { return this.setFontSize(px); }
 
-  /**
-   * Set an explicit font file path to use for this Text. The path will be
-   * registered via @napi-rs/canvas GlobalFonts and used for layout/draw.
-   */
-  public setFontPath(path: string): this {
-    this._fontPath = path;
-    this._resolvedFamily = undefined;
-    this._needsLayout = true;
-    return this;
-  }
-  /** Fluent alias: .fontPath() */
-  public fontPath(path: string): this { return this.setFontPath(path); }
+  /** Fluent alias: .font() */
+  public font(font?: string): this { return this.setFont(font); }
+
 
   /** Access number of characters. */
   public override get length(): number { return this._text.length; }
@@ -164,21 +146,12 @@ export class Text extends VGroup<TextChar> {
   private ensureLayout(): void {
     if (!this._needsLayout) return;
 
-    // Resolve and register font once (explicit fontPath, or system family, or bundled Roboto)
+    // Resolve and register font
     if (!this._resolvedFamily) {
-      if (this._fontPath) {
-        const family = this._fontFamily ?? deriveFamilyFromPath(this._fontPath);
-        ensureFontRegistered(this._fontPath, family);
-        this._resolvedFamily = family;
-      } else if (this._fontFamily) {
-        // Use system-installed font family as-is; do not register Roboto under this name
-        this._resolvedFamily = this._fontFamily;
-      } else {
-        const path = defaultRobotoPath();
-        const family = deriveFamilyFromPath(path);
-        ensureFontRegistered(path, family);
-        this._resolvedFamily = family;
+      if (!this._font) {
+        throw new Error('No font specified for Text. Use .font() to set a font family, file path, or path#family.');
       }
+      this._resolvedFamily = parseAndRegisterFont(this._font);
     }
 
     const n = this._text.length;

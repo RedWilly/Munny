@@ -1,45 +1,82 @@
 /**
- * Font utilities for registering fonts and providing defaults.
+ * Font utilities for parsing and registering fonts.
  *
- * - Default font is the bundled ROBOTO-REGULAR.ttf in `src/font/`.
- * - Users can call `ensureFontRegistered(path, family)` to register custom fonts.
- * - Functions are safe to call multiple times; registration is cached by family.
+ * Supports unified font specification:
+ * - "Arial" - system font family
+ * - "./path/to/font.ttf" - font file path
+ * - "./path/to/font.ttf#CustomName" - font file path with explicit family name
  *
- * This module avoids global/system font scanning. Fonts must be registered explicitly
- * or fall back to the bundled Roboto.
+ * No fallback fonts - if a font is not found or cannot be registered, an error is thrown.
  *
  * Environment: Bun/TypeScript (ESM). Uses @napi-rs/canvas GlobalFonts.
  */
 import { GlobalFonts } from '@napi-rs/canvas';
-import { fileURLToPath } from 'url';
 
 /** Cache of families we've registered this process run. */
 const REGISTERED_FAMILIES: Set<string> = new Set<string>();
 
 /**
- * Ensure a font at `path` is registered with the given `family` name.
- * Safe to call repeatedly; will register only once per `family`.
+ * Parse a font specification and return the resolved family name.
+ * Handles registration for file paths automatically.
+ * 
+ * @param font - Font specification (family name, path, or path#family)
+ * @returns The resolved font family name to use in CSS font declarations
+ * @throws Error if font file cannot be registered or specification is invalid
  */
-export function ensureFontRegistered(path: string, family: string): void {
-  if (REGISTERED_FAMILIES.has(family)) return;
-  try {
-    GlobalFonts.registerFromPath(path, family);
-  } catch {
-    // Ignore registration errors; canvas will attempt fallback.
+export function parseAndRegisterFont(font: string): string {
+  if (!font || font.trim() === '') {
+    throw new Error('Font specification cannot be empty');
   }
-  REGISTERED_FAMILIES.add(family);
+
+  const trimmed = font.trim();
+  
+  // Check if it's a file path (contains . or / or \)
+  if (trimmed.includes('.') || trimmed.includes('/') || trimmed.includes('\\')) {
+    // It's a file path, possibly with #family
+    const hashIndex = trimmed.indexOf('#');
+    let filePath: string;
+    let familyName: string;
+    
+    if (hashIndex !== -1) {
+      // Path with explicit family: "./font.ttf#MyFont"
+      filePath = trimmed.substring(0, hashIndex);
+      familyName = trimmed.substring(hashIndex + 1);
+      if (!familyName) {
+        throw new Error(`Invalid font specification: missing family name after '#' in "${font}"`);
+      }
+    } else {
+      // Path without explicit family: "./font.ttf"
+      filePath = trimmed;
+      familyName = deriveFamilyFromPath(filePath);
+    }
+    
+    // Register the font if not already registered
+    if (!REGISTERED_FAMILIES.has(familyName)) {
+      try {
+        GlobalFonts.registerFromPath(filePath, familyName);
+        REGISTERED_FAMILIES.add(familyName);
+      } catch (error) {
+        throw new Error(`Failed to register font from "${filePath}": ${error}`);
+      }
+    }
+    
+    return familyName;
+  } else {
+    // It's a system font family name
+    return trimmed;
+  }
 }
 
-/** Return absolute OS path to bundled Roboto Regular. */
-export function defaultRobotoPath(): string {
-  // This file is in src/font/; Roboto sits alongside as ROBOTO-REGULAR.TTF
-  return fileURLToPath(new URL('./ROBOTO-REGULAR.TTF', import.meta.url));
-}
+
 
 /** Derive a reasonable family name from a file path. */
-export function deriveFamilyFromPath(p: string): string {
+function deriveFamilyFromPath(p: string): string {
   const norm = p.replace(/\\/g, '/');
   const base = norm.substring(norm.lastIndexOf('/') + 1);
   const dot = base.lastIndexOf('.');
-  return (dot > 0 ? base.substring(0, dot) : base) || 'Roboto';
+  const name = dot > 0 ? base.substring(0, dot) : base;
+  if (!name) {
+    throw new Error(`Cannot derive font family name from path: "${p}"`);
+  }
+  return name;
 }
