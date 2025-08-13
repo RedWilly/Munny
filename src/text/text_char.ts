@@ -6,12 +6,13 @@
  */
 import type { SKRSContext2D } from '@napi-rs/canvas';
 import { Mobject } from '../core/mobject.ts';
-import { FontManager } from '../font/font_manager.ts';
+import { ensureFontRegistered, defaultRobotoPath, deriveFamilyFromPath } from '../font/font_utils.ts';
 
 export class TextChar extends Mobject {
   private _char: string;
   private _fontFamily?: string;
   private _resolvedFamily?: string;
+  private _fontPath?: string;
   private _fontSize: number = 48;
 
   constructor(ch: string, name: string = 'TextChar') {
@@ -39,6 +40,15 @@ export class TextChar extends Mobject {
     return this;
   }
 
+  /** Set explicit font file path for this character. */
+  public setFontPath(path: string): this {
+    this._fontPath = path;
+    this._resolvedFamily = undefined;
+    return this;
+  }
+  /** Fluent alias */
+  public fontPath(path: string): this { return this.setFontPath(path); }
+
   /** For internal use when parent already resolved the family. */
   public setResolvedFamily(family: string): this {
     this._resolvedFamily = family;
@@ -55,8 +65,11 @@ export class TextChar extends Mobject {
 
     // Ensure font is registered, prefer already-resolved
     if (!this._resolvedFamily) {
-      const fam = FontManager.get().ensureRegistered(this._fontFamily);
-      this._resolvedFamily = fam ?? this._fontFamily ?? 'Arial';
+      // Prefer explicit font path; otherwise use bundled Roboto.
+      const path = this._fontPath ?? defaultRobotoPath();
+      const family = this._fontPath ? (this._fontFamily ?? deriveFamilyFromPath(path)) : deriveFamilyFromPath(path);
+      ensureFontRegistered(path, family);
+      this._resolvedFamily = family;
     }
 
     ctx.save();

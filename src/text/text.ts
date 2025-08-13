@@ -8,25 +8,33 @@
 import { createCanvas, type SKRSContext2D } from '@napi-rs/canvas';
 import { VGroup } from '../core/vgroup.ts';
 import { TextChar } from './text_char.ts';
-import { FontManager } from '../font/font_manager.ts';
+import { ensureFontRegistered, defaultRobotoPath, deriveFamilyFromPath } from '../font/font_utils.ts';
 
 export class Text extends VGroup<TextChar> {
   [index: number]: TextChar; 
   private _text: string;
-  private _fontFamily?: string; // requested family name
-  private _resolvedFamily?: string; // registered family actually used
+  private _fontFamily?: string; 
+  private _resolvedFamily?: string; 
+  private _fontPath?: string; 
   private _fontSize: number = 48;
   private _needsLayout: boolean = true;
   /**
-   * Create text. Defaults: size=48, family resolved via FontManager (Arial fallback).
+   * Create text. Defaults: fontSize=48. If `fontPath` is provided, it will be registered
+   * via GlobalFonts and used; otherwise, the bundled ROBOTO-REGULAR.ttf is registered
+   * and used by default. You can still pass a `fontFamily` (or `font`) to set the family name.
    * Use chaining for style (fill/stroke) from Mobject, and .font() / .fontSize().
    */
-  constructor(text: string, opts?: { font?: string; family?: string; size?: number; fontsize?: number }, name: string = 'Text') {
+  constructor(
+    text: string,
+    opts?: { fontPath?: string; font?: string; fontFamily?: string; fontSize?: number },
+    name: string = 'Text'
+  ) {
     super(name);
     this._text = text;
-    const fam = opts?.font ?? opts?.family;
+    const fam = opts?.font ?? opts?.fontFamily;
     if (fam) this._fontFamily = fam;
-    const sz = opts?.size ?? opts?.fontsize;
+    if (opts?.fontPath) this._fontPath = opts.fontPath;
+    const sz = opts?.fontSize;
     if (sz !== undefined) this._fontSize = sz > 0 ? sz : 1;
     // Default fill to white for visibility
     this.fill('#ffffff');
@@ -81,6 +89,19 @@ export class Text extends VGroup<TextChar> {
   public font(family?: string): this { return this.setFontFamily(family); }
   /** Fluent alias: .fontSize() */
   public fontSize(px: number): this { return this.setFontSize(px); }
+
+  /**
+   * Set an explicit font file path to use for this Text. The path will be
+   * registered via @napi-rs/canvas GlobalFonts and used for layout/draw.
+   */
+  public setFontPath(path: string): this {
+    this._fontPath = path;
+    this._resolvedFamily = undefined;
+    this._needsLayout = true;
+    return this;
+  }
+  /** Fluent alias: .fontPath() */
+  public fontPath(path: string): this { return this.setFontPath(path); }
 
   /** Access number of characters. */
   public override get length(): number { return this._text.length; }
@@ -143,10 +164,21 @@ export class Text extends VGroup<TextChar> {
   private ensureLayout(): void {
     if (!this._needsLayout) return;
 
-    // Resolve and register font once
+    // Resolve and register font once (explicit fontPath, or system family, or bundled Roboto)
     if (!this._resolvedFamily) {
-      const fam = FontManager.get().ensureRegistered(this._fontFamily);
-      this._resolvedFamily = fam ?? this._fontFamily ?? 'Arial';
+      if (this._fontPath) {
+        const family = this._fontFamily ?? deriveFamilyFromPath(this._fontPath);
+        ensureFontRegistered(this._fontPath, family);
+        this._resolvedFamily = family;
+      } else if (this._fontFamily) {
+        // Use system-installed font family as-is; do not register Roboto under this name
+        this._resolvedFamily = this._fontFamily;
+      } else {
+        const path = defaultRobotoPath();
+        const family = deriveFamilyFromPath(path);
+        ensureFontRegistered(path, family);
+        this._resolvedFamily = family;
+      }
     }
 
     const n = this._text.length;
@@ -168,7 +200,6 @@ export class Text extends VGroup<TextChar> {
       const chObj = children[i]!;
       chObj.setChar(this._text[i]!);
       chObj.setResolvedFamily(this._resolvedFamily);
-      chObj.setFontFamily(this._fontFamily);
       chObj.setFontSize(this._fontSize);
       // Opacity multiplies via group; keep char opacity at 1 unless modified by user
     }

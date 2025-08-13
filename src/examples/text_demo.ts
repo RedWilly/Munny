@@ -26,17 +26,17 @@ export class TextDemo extends Scene {
   public static override config?: SceneConfig;
 
   public override async construct(): Promise<void> {
-    const headline = new Text('Munny', { font: 'Arial', size: 72 })
+    const headline = new Text('Munny', { font: 'VCR EAS', fontSize: 72 })
       .setColor('#00ff88')
       .setOpacity(0)
       .setPosition(0, 80);
 
-    const subtitle = new Text('TypeScript Manim-like', { font: 'Arial', size: 28 })
+    const subtitle = new Text('TypeScript Manim-like', { font: 'VCR EAS', fontSize: 28 })
       .setColor('#ffffff')
       .setOpacity(0)
       .setPosition(0, 30);
 
-    const footnote = new Text('Fluent: .font(), .fontSize(), .text()', { font: 'Arial', size: 20 })
+    const footnote = new Text('Fluent: .font(), .fontSize(), .text()', { font: 'VCR EAS', fontSize: 20 })
       .setColor('#cccccc')
       .setOpacity(0)
       .setPosition(0, -120);

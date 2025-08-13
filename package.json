@@ -14,7 +14,8 @@
   },
   "devDependencies": {
     "@types/bun": "latest",
-    "@types/fontkit": "^2.0.8"
+    "@types/fontkit": "^2.0.8",
+    "@types/svg-path-parser": "^1.1.6"
   },
   "peerDependencies": {
     "typescript": "^5"

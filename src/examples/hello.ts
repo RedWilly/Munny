@@ -31,7 +31,7 @@ export class HelloWorld extends Scene {
       .setOpacity(0)
       .setPosition(0, 0);
 
-    const title = new Text('Hello Munny', { font: 'Arial', size: 32 })
+    const title = new Text('Hello Munny', { font: 'VCR EAS', fontSize: 32 })
     /*or can use .setFont('Arial') and .setFontSize(32)*/
       .setColor('#00ff00')
       .setOpacity(0)

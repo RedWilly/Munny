@@ -24,5 +24,4 @@ export { FadeIn, FadeOut } from './animation/transforms/fade.ts';
 export { Sequence, Parallel, SequenceAnimation, ParallelAnimation } from './animation/base/combinators.ts';
 export { Circle } from './shapes/circle.ts';
 export { Text } from './text/text.ts';
-export { FontManager } from './font/font_manager.ts';
 export { linear, easeIn, easeOut, easeInOut, elastic, bounce, spring } from './animation/base/easing.ts';
