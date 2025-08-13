@@ -22,6 +22,6 @@ export { OpacityTo } from './animation/transforms/opacity.ts';
 export { FillColorTo, StrokeColorTo, StrokeWidthTo } from './animation/transforms/style.ts';
 export { FadeIn, FadeOut } from './animation/transforms/fade.ts';
 export { Sequence, Parallel, SequenceAnimation, ParallelAnimation } from './animation/base/combinators.ts';
-export { Circle } from './shapes/circle.ts';
+export { Circle, Rectangle, Line, Polygon, Arc, Annulus, Arrow } from './shapes/index.ts';
 export { Text } from './text/text.ts';
 export { linear, easeIn, easeOut, easeInOut, elastic, bounce, spring } from './animation/base/easing.ts';
