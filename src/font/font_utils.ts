@@ -2,7 +2,7 @@
  * Font utilities for parsing and registering fonts.
  *
  * Supports unified font specification:
- * - "Arial" - system font family
+ * - "Arial" - system font family(install on the system)
  * - "./path/to/font.ttf" - font file path
  * - "./path/to/font.ttf#CustomName" - font file path with explicit family name
  *
