@@ -38,7 +38,7 @@ export class VectorTextTest extends Scene {
       .setPosition(0, -20);
 
     // Background circle for reference
-    const bg = new Circle(120)
+    const bg = new Circle(130)
       .setColor('#333333')
       .stroke('#00ff88')
       .setStrokeWidth(2)
@@ -86,5 +86,15 @@ export class VectorTextTest extends Scene {
     await this.play(
       vectorText.rotateBy(Math.PI / 8, 1).setEasing('easeInOut')
     );
+
+    // scale smallText
+    await this.play(
+      smallText.scaleTo([1.5, 1.5], 1).setEasing('easeInOut').setDuration(3),
+    )
+
+    // scale smallText
+    await this.play(
+      smallText.scaleTo([1, 1], 1).setEasing('easeInOut').setDuration(2),
+    )//can also use scaleby
   }
 }
