@@ -24,12 +24,12 @@ export class HelloWorld extends Scene {
   public static override config?: SceneConfig;
 
   public override async construct(): Promise<void> {
-    const circle = new Circle()
-      .setRadius(60)
-      .setColor('#1e90ff') // dodgerblue
-      .setStrokeWidth(4)
-      .setOpacity(0)
-      .setPosition(0, 0);
+    // const circle = new Circle()
+    //   .setRadius(60)
+    //   .setColor('#1e90ff') // dodgerblue
+    //   .setStrokeWidth(4)
+    //   .setOpacity(0)
+    //   .setPosition(0, 0);
 
     const title = new Text('Hello Munny', { font: 'VCR EAS', fontSize: 32 })
     /*or can use .setFont('Arial') and .setFontSize(32)*/
@@ -37,10 +37,11 @@ export class HelloWorld extends Scene {
       .setOpacity(0)
       .setPosition(0, 0);
 
-    this.add(circle, title);
+    this.add(title);
 
     // Fade in, then move
-    await this.play(circle.fadeIn(3), title.fadeIn(1));
-    await this.play(circle.moveTo([150, 90]).setEasing('easeInOut').setDuration(2.0));
+    await this.play(title.fadeIn(3));
+    // await this.play(circle.fadeIn(3), title.fadeIn(1));
+    // await this.play(circle.moveTo([150, 90]).setEasing('easeInOut').setDuration(2.0));
   }
 }

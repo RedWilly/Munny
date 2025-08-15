@@ -1,107 +1,72 @@
 /**
- * TextChar - single character mobject drawn via canvas text APIs.
+ * TextChar - single character mobject drawn via vector paths.
  *
- * Draws one character at its local origin (baseline y=0) with center alignment,
- * and applies a local Y-scale flip to cancel the global scene Y-up flip.
+ * Renders individual glyphs from fontkit layout with proper positioning.
+ * Supports individual character animations while maintaining text layout integrity.
  */
 import type { SKRSContext2D } from '@napi-rs/canvas';
 import { Mobject } from '../core/mobject.ts';
-import { parseAndRegisterFont } from '../font/font_utils.ts';
+import { renderGlyph, type GlyphData } from '../font/glyph_path_extractor.ts';
 
 export class TextChar extends Mobject {
+  private _glyphData: GlyphData;
   private _char: string;
-  private _font?: string;
-  private _resolvedFamily?: string;
-  private _fontSize: number = 48;
 
-  constructor(ch: string, name: string = 'TextChar') {
+  constructor(glyphData: GlyphData, char: string, name: string = 'TextChar') {
     super(name);
-    this._char = ch;
-    // Characters default to inheriting parent color; leave fill default '#ffffff' from parent
+    this._glyphData = glyphData;
+    this._char = char;
+    // Position based on glyph layout data
+    // this.setPosition(glyphData.position.x, glyphData.position.y);
   }
 
-  /** Set character glyph. */
-  public setChar(ch: string): this {
-    this._char = ch;
-    return this;
+  /** Get the character this glyph represents */
+  public get char(): string {
+    return this._char;
   }
 
-  /** Configure font specification to resolve. */
-  public setFont(font?: string): this {
-    this._font = font;
-    this._resolvedFamily = undefined;
-    return this;
-  }
-
-  /** Set font size in px. */
-  public setFontSize(px: number): this {
-    this._fontSize = px > 0 ? px : 1;
-    return this;
-  }
-
-  /** Fluent alias */
-  public font(font?: string): this { return this.setFont(font); }
-
-  /** Fluent alias */
-  public fontSize(px: number): this { return this.setFontSize(px); }
-
-  /** For internal use when parent already resolved the family. */
-  public setResolvedFamily(family: string): this {
-    this._resolvedFamily = family;
+  /** Update glyph data (used when text changes) */
+  public updateGlyph(glyphData: GlyphData, char: string): this {
+    this._glyphData = glyphData;
+    this._char = char;
+    this.setPosition(glyphData.position.x, glyphData.position.y);
     return this;
   }
 
   protected createPath(_ctx: SKRSContext2D): void {
-    // No prebuilt path; draws directly
+    // Vector paths are handled in draw() method
   }
 
-  /** Draw a single character centered horizontally at baseline y=0. */
+  /** Draw the glyph using vector paths */
   public override draw(ctx: SKRSContext2D): void {
     if (!this.visible) return;
 
-    // Ensure font is registered, prefer already-resolved
-    if (!this._resolvedFamily) {
-      if (!this._font) {
-        throw new Error('No font specified for TextChar. Font must be set via parent Text or directly.');
-      }
-      this._resolvedFamily = parseAndRegisterFont(this._font);
-    }
-
     ctx.save();
     try {
-      // Local transforms
+      // Apply transforms
       ctx.translate(this.position[0]!, this.position[1]!);
-      // Cancel global Y-up flip so text appears upright
-      ctx.scale(1, -1);
       if (this.rotation !== 0) ctx.rotate(this.rotation);
       if (this.scale[0] !== 1 || this.scale[1] !== 1) ctx.scale(this.scale[0]!, this.scale[1]!);
 
-      // Opacity multiply
+      // Apply opacity
       const prevAlpha = ctx.globalAlpha;
       ctx.globalAlpha = prevAlpha * this.opacity;
 
-      // Configure text styles
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'alphabetic';
-      ctx.font = `${this._fontSize}px ${quoteIfNeeded(this._resolvedFamily!)}`;
-
-      if (this.fillColor) {
-        ctx.fillStyle = this.fillColor as string;
-        ctx.fillText(this._char, 0, 0);
-      }
-      if (this.strokeColor && this.strokeWidth > 0) {
-        ctx.strokeStyle = this.strokeColor as string;
-        ctx.lineWidth = this.strokeWidth;
-        ctx.strokeText(this._char, 0, 0);
-      }
+      // Render glyph at origin (position is already applied via translate)
+      renderGlyph(
+        ctx,
+        this._glyphData,
+        0, // No additional offset needed
+        0,
+        this.fillColor,
+        this.strokeColor,
+        this.strokeWidth
+      );
 
       ctx.globalAlpha = prevAlpha;
     } finally {
       ctx.restore();
     }
   }
-}
 
-function quoteIfNeeded(family: string): string {
-  return /\s/.test(family) ? `'${family.replace(/'/g, "\\'")}'` : family;
 }

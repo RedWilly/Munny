@@ -5,16 +5,15 @@
  * - Characters are individually addressable and animatable.
  * - Supports runtime numeric indexing via Proxy: `text[0]`.
  */
-import { createCanvas, type SKRSContext2D } from '@napi-rs/canvas';
+import type { SKRSContext2D } from '@napi-rs/canvas';
 import { VGroup } from '../core/vgroup.ts';
 import { TextChar } from './text_char.ts';
-import { parseAndRegisterFont } from '../font/font_utils.ts';
+import { layoutText, type TextLayout, type GlyphData } from '../font/glyph_path_extractor.ts';
 
 export class Text extends VGroup<TextChar> {
   [index: number]: TextChar; 
   private _text: string;
   private _font?: string; 
-  private _resolvedFamily?: string; 
   private _fontSize: number = 48;
   private _needsLayout: boolean = true;
   /**
@@ -63,7 +62,6 @@ export class Text extends VGroup<TextChar> {
   /** Set font specification (chainable). Supports family names, file paths, or path#family format. */
   public setFont(font?: string): this {
     this._font = font;
-    this._resolvedFamily = undefined; // re-resolve on next layout
     this._needsLayout = true;
     return this;
   }
@@ -142,74 +140,61 @@ export class Text extends VGroup<TextChar> {
     super.draw(ctx);
   }
 
-  /** Build or update character children and their positions. */
+  /** Build or update character children using fontkit layout. */
   private ensureLayout(): void {
     if (!this._needsLayout) return;
 
-    // Resolve and register font
-    if (!this._resolvedFamily) {
-      if (!this._font) {
-        throw new Error('No font specified for Text. Use .font() to set a font family, file path, or path#family.');
+    // Resolve font path
+    let fontPath: string;
+    if (this._font) {
+      fontPath = this._font;
+    } else {
+      // Fallback to bundled font
+      fontPath = './src/font/ROBOTO-REGULAR.TTF';
+    }
+
+    try {
+      // Use fontkit layout for proper text shaping
+      const layout: TextLayout = layoutText(fontPath, this._text, this._fontSize);
+      const children = (this as any).children as TextChar[];
+
+      // Adjust children count to match glyph count
+      const glyphCount = layout.glyphs.length;
+      for (let i = children.length; i < glyphCount; i++) {
+        // Create placeholder - will be updated below
+        const placeholder: GlyphData = {
+          pathCommands: [],
+          advanceWidth: 0,
+          bbox: { x: 0, y: 0, width: 0, height: 0 },
+          position: { x: 0, y: 0 }
+        };
+        const ch = new TextChar(placeholder, ' ');
+        // Initialize with current parent style
+        if (this.fillColor) ch.fill(this.fillColor);
+        if (this.strokeColor) ch.stroke(this.strokeColor);
+        ch.setStrokeWidth(this.strokeWidth);
+        children.push(ch);
       }
-      this._resolvedFamily = parseAndRegisterFont(this._font);
-    }
+      if (children.length > glyphCount) children.length = glyphCount;
 
-    const n = this._text.length;
-    const children = (this as any).children as TextChar[];
+      // Update each character with proper glyph data
+      for (let i = 0; i < glyphCount; i++) {
+        const glyphData = layout.glyphs[i]!;
+        const char = this._text[i] || ' ';
+        const chObj = children[i]!;
+        
+        // Update glyph data and position
+        chObj.updateGlyph(glyphData, char);
+        
+        // Center the text around x=0
+        const centeredX = glyphData.position.x - layout.totalWidth / 2;
+        chObj.setPosition(centeredX, glyphData.position.y);
+      }
 
-    // Adjust children count to match text length
-    for (let i = children.length; i < n; i++) {
-      const ch = new TextChar(' ');
-      // Initialize with current parent style (one-time)
-      if (this.fillColor) ch.fill(this.fillColor);
-      if (this.strokeColor) ch.stroke(this.strokeColor);
-      ch.setStrokeWidth(this.strokeWidth);
-      children.push(ch);
+      this._needsLayout = false;
+    } catch (error) {
+      console.error(`Failed to layout text "${this._text}": ${error}`);
     }
-    if (children.length > n) children.length = n;
-
-    // Update glyphs and font on all children
-    for (let i = 0; i < n; i++) {
-      const chObj = children[i]!;
-      chObj.setChar(this._text[i]!);
-      chObj.setResolvedFamily(this._resolvedFamily);
-      chObj.setFontSize(this._fontSize);
-      // Opacity multiplies via group; keep char opacity at 1 unless modified by user
-    }
-
-    // Measure widths and place characters centered around x=0
-    const mctx = getMeasureContext();
-    mctx.font = `${this._fontSize}px ${quoteIfNeeded(this._resolvedFamily)}`;
-    const widths = new Float64Array(n);
-    let total = 0;
-    for (let i = 0; i < n; i++) {
-      const w = mctx.measureText(this._text[i]!).width;
-      widths[i] = w;
-      total += w;
-    }
-    let x = -total / 2;
-    for (let i = 0; i < n; i++) {
-      const cx = x + widths[i]! / 2;
-      children[i]!.setPosition(cx, 0);
-      x += widths[i]!;
-    }
-
-    this._needsLayout = false;
   }
 
-}
-
-function quoteIfNeeded(family: string): string {
-  return /\s/.test(family) ? `'${family.replace(/'/g, "\\'")}'` : family;
-}
-
-// Cached measurement context for text metrics
-let _measureCtx: SKRSContext2D | null = null;
-function getMeasureContext(): SKRSContext2D {
-  if (_measureCtx) return _measureCtx;
-  const c = createCanvas(8, 8);
-  const ctx = c.getContext('2d');
-  if (!ctx) throw new Error('Failed to acquire 2D context for measurement');
-  _measureCtx = ctx as SKRSContext2D;
-  return _measureCtx;
 }
