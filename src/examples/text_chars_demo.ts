@@ -9,8 +9,8 @@ import { Scene } from '../scene/scene.ts';
 import { Text } from '../text/text.ts';
 
 export const config: SceneConfig = {
-  width: 800,
-  height: 450,
+  width: 1920,
+  height: 1080,
   backgroundColor: '#101010',
   fps: 30,
 };
@@ -21,11 +21,9 @@ export class TextCharsDemo extends Scene {
     this.add(text);
 
     // Indexing and slicing
-    const h = (text as any)[0];
-    //also support these too=>>
-    /* const h = text.at(0);
-    *  const h = text[0];
-    */
+    const h = text.at(0);
+    // also supports bracket indexing via Proxy:
+    // const h = text[0];
     const ello = text.slice(1, 5);
     const world = text.slice(6, 11);
 

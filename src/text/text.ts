@@ -203,14 +203,6 @@ export class Text extends VGroup<TextChar> {
   // ============================================================================
 
   /**
-   * Get character at specific index (throws if out of bounds)
-   * @param index - Character index
-   */
-  public charAt(index: number): TextChar {
-    return this.getCharAt(index);
-  }
-
-  /**
    * Get character at specific index with bounds checking
    * @param index - Character index
    */

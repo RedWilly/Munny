@@ -187,7 +187,7 @@ export class TextDemo extends Scene {
     {
       const waves = [] as any[];
       for (let i = 0; i < headline.length; i++) {
-        const ch = headline.charAt(i);
+        const ch = headline.at(i);
         waves.push(
           Sequence(
             Parallel(

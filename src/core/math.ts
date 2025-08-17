@@ -13,12 +13,6 @@ export function lerp(a: number, b: number, t: number): number {
   return a + (b - a) * t;
 }
 
-/** Copy into an existing Vec2 from tuple. */
-export function setVec2(out: Vec2, v: ReadonlyVec2): Vec2 {
-  out[0] = v[0];
-  out[1] = v[1];
-  return out;
-}
 
 /** Mix two vectors into out by factor t. */
 export function mixVec2(out: Vec2, a: ReadonlyVec2 | ArrayLike<number>, b: ReadonlyVec2 | ArrayLike<number>, t: number): Vec2 {

@@ -55,7 +55,7 @@ export class VectorTextTest extends Scene {
     // Test character-level animation with vector text
     const chars = [];
     for (let i = 0; i < vectorText.length; i++) {
-      chars.push(vectorText.charAt(i));
+      chars.push(vectorText.at(i));
     }
 
     // Animate each character individually
