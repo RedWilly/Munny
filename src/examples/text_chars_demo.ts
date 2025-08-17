@@ -23,8 +23,9 @@ export class TextCharsDemo extends Scene {
     // Indexing and slicing
     const h = (text as any)[0];
     //also support these too=>>
-    // // const h = text.at(0);
-    // const h = text[0];
+    /* const h = text.at(0);
+    *  const h = text[0];
+    */
     const ello = text.slice(1, 5);
     const world = text.slice(6, 11);
 

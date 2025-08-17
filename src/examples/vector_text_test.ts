@@ -43,7 +43,7 @@ export class VectorTextTest extends Scene {
       .stroke('#00ff88')
       .setStrokeWidth(2)
       .setOpacity(0)
-      .setPosition(0, 0);
+      .setPosition(0, 30);
 
     this.add(bg, vectorText, smallText);
 
